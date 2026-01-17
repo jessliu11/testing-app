@@ -17,7 +17,7 @@ const App = () => (
         <Routes>
           <Route path="/" element ={<Index />} />
           {/* Other routes can be added here */}
-          <Route path="*" element ={<NotFound />} />
+          /<Route path="*" element ={<NotFound />} />
         </Routes>
       </BrowserRouter>
     </TooltipProvider>
