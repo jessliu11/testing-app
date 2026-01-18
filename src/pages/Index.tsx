@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { Header } from '@/components/Header';
-// import { RankingGame } from '@/components/RankingGame';
+import { RankingGame } from '@/components/RankingGame';
 import { Leaderboard } from '@/components/Leaderboard';
 import { getTodaySongs } from '@/lib/songs';
 import type { Song } from '@/lib/songs';
@@ -76,9 +76,7 @@ const Index = () => {
                 <Header />
                 {!hasSubmitted ? (
                     songs.length > 0 ? (
-                        <div className="text-center py-12">
-                            <p className="text-foreground">Ranking game coming soon.</p>
-                        </div>
+                        <RankingGame songs={songs} onSubmit={handleSubmit} />
                     ) : (
                         <div className="text-center py-12">
                             <p className="text-muted-foreground">Loading today's songs...</p>

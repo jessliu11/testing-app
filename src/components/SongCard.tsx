@@ -17,7 +17,7 @@ export function SongCard({ song, rank, isDragging }: SongCardProps) {
                 ${isDragging ? 'scale-105 shadow-glow rotate-10' : ''}
             `}
         >
-            (/* Rank Badge */)
+            {/* Rank Badge */}
             <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-gold flex items-center justify-center">
                 <span className="text-sm font-semibold text-primary-foreground"> {rank}</span>
             </div>
