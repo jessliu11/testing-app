@@ -7,7 +7,7 @@ export interface Song {
 }
 
 export const allSongs: Song[] = [
-     { id: "1", title: "All Too Well (10 Minute Version)", album: "Red (Taylor's Version)", year: 2021, albumColor: "#8B0000" },
+  { id: "1", title: "All Too Well (10 Minute Version)", album: "Red (Taylor's Version)", year: 2021, albumColor: "#8B0000" },
   { id: "2", title: "Love Story", album: "Fearless", year: 2008, albumColor: "#D4AF37" },
   { id: "3", title: "Blank Space", album: "1989", year: 2014, albumColor: "#87CEEB" },
   { id: "4", title: "Anti-Hero", album: "Midnights", year: 2022, albumColor: "#1a1a2e" },
