@@ -16,7 +16,7 @@ create or replace function public.get_daily_set(
 returns table (
   daily_set_id uuid,
   set_date date,
-  category_id uuid,
+  daily_set_category_id uuid,
   item_id uuid,
   item_name text,
   item_artist text,
@@ -80,13 +80,13 @@ begin
   -- Return the daily set and its items
   return query
   select
-    ds.id::uuid as daily_set_id,
-    ds.set_date::date,
-    ds.category_id::uuid,
-    i.id::uuid as item_id,
-    i.name::text as item_name,
-    i.artist::text as item_artist,
-    dsi.display_order::int
+    ds.id,
+    ds.set_date,
+    ds.category_id,
+    i.id,
+    i.name,
+    i.artist,
+    dsi.display_order
   from public.daily_sets ds
   join public.daily_set_items dsi on dsi.daily_set_id = ds.id
   join public.items i on i.id = dsi.item_id
