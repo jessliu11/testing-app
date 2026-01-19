@@ -80,13 +80,13 @@ begin
   -- Return the daily set and its items
   return query
   select
-    ds.id as daily_set_id,
-    ds.set_date,
-    ds.category_id,
-    i.id as item_id,
-    i.name as item_name,
-    i.artist as item_artist,
-    dsi.display_order
+    ds.id::uuid as daily_set_id,
+    ds.set_date::date,
+    ds.category_id::uuid,
+    i.id::uuid as item_id,
+    i.name::text as item_name,
+    i.artist::text as item_artist,
+    dsi.display_order::int
   from public.daily_sets ds
   join public.daily_set_items dsi on dsi.daily_set_id = ds.id
   join public.items i on i.id = dsi.item_id

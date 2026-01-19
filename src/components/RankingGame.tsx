@@ -1,16 +1,21 @@
 import { useState, useCallback } from 'react';
-import type { Song } from '@/lib/songs';
 import { SongCard } from './SongCard';
 import { Button } from "@/components/ui/button";
 import { Sparkles, ArrowRight } from 'lucide-react';
 
-interface RankingGameProps {
-    songs: Song[]; 
-    onSubmit: (ranking: string[]) => void;  // ranking is an array of song IDs in the order ranked by the user
+interface Item {
+    id: string;
+    name: string;
+    artist: string | null;
 }
 
-export function RankingGame({ songs, onSubmit }: RankingGameProps) {
-    const [rankedSongs, setRankedSongs] = useState<Song[]>(songs); 
+interface RankingGameProps {
+    items: Item[]; 
+    onSubmit: (ranking: string[]) => void;
+}
+
+export function RankingGame({ items, onSubmit }: RankingGameProps) {
+    const [rankedItems, setRankedItems] = useState<Item[]>(items); 
     const [draggedIndex, setDraggedIndex] = useState<number | null>(null); 
 
     const handleDragStart = (index: number) => {
@@ -21,10 +26,10 @@ export function RankingGame({ songs, onSubmit }: RankingGameProps) {
         e.preventDefault();
         if (draggedIndex === null || draggedIndex === index) return;
 
-        const newSongs = [...rankedSongs];
-        const [draggedSong] = newSongs.splice(draggedIndex, 1);
-        newSongs.splice(index, 0, draggedSong);
-        setRankedSongs(newSongs);
+        const newItems = [...rankedItems];
+        const [draggedItem] = newItems.splice(draggedIndex, 1);
+        newItems.splice(index, 0, draggedItem);
+        setRankedItems(newItems);
         setDraggedIndex(index);
     };
     
@@ -33,8 +38,8 @@ export function RankingGame({ songs, onSubmit }: RankingGameProps) {
     }
 
     const handleSubmit = useCallback(() => {
-        onSubmit(rankedSongs.map(s => s.id));
-    }, [rankedSongs, onSubmit]);
+        onSubmit(rankedItems.map(s => s.id));
+    }, [rankedItems, onSubmit]);
     
     return (
         <div className="space-y-6">
@@ -45,9 +50,9 @@ export function RankingGame({ songs, onSubmit }: RankingGameProps) {
             </div>
 
             <div className="space-y-3">
-                {rankedSongs.map((song, index) => ( 
+                {rankedItems.map((item, index) => ( 
                     <div
-                        key={song.id} // Use song.id as key
+                        key={item.id}
                         draggable
                         onDragStart={() => handleDragStart(index)}
                         onDragOver={(e) => handleDragOver(e, index)}
@@ -56,7 +61,7 @@ export function RankingGame({ songs, onSubmit }: RankingGameProps) {
                         style={{ animationDelay: `${index * 100}ms` }}
                     >
                         <SongCard 
-                            song={song}
+                            item={item}
                             rank={index + 1}
                             isDragging={draggedIndex === index}
                         />

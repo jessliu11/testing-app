@@ -1,16 +1,25 @@
-import type { Song } from "@/lib/songs";
-import type { LeaderboardEntry } from "@/lib/leaderboard";
-import { Trophy, Users, Crown, Medal } from "lucide-react";
+import { Users, Crown, Medal } from "lucide-react";
+import type { GlobalRankingItem } from "@/lib/types";
+
+interface Item {
+    id: string;
+    name: string;
+    artist: string | null;
+}
 
 interface LeaderboardProps {
-    songs: Song[];
-    leaderboard: LeaderboardEntry[];
+    items: Item[];
+    globalRanking: GlobalRankingItem[];
     userRanking: string[];
 }
 
-export function Leaderboard({ songs, leaderboard, userRanking }: LeaderboardProps) {
-    const songMap = new Map(songs.map(s => [s.id,s]));
-    const totalVotes = leaderboard[0]?.totalVotes || 0;
+export function Leaderboard({ items, globalRanking, userRanking }: LeaderboardProps) {
+    const itemMap = new Map(items.map(i => [i.id, i]));
+    
+    // Calculate total votes from scores (since score = sum of (7 - rank))
+    // Each vote contributes between 1 and 6 points, average ~3.5
+    const totalScore = globalRanking.reduce((sum, item) => sum + item.score, 0);
+    const estimatedVotes = totalScore > 0 ? Math.round(totalScore / 21) : 0; // 21 = sum(1..6)
 
     return (
         <div className="space-y-6">
@@ -18,23 +27,23 @@ export function Leaderboard({ songs, leaderboard, userRanking }: LeaderboardProp
                 <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent">
                     <Users className="w-4 h-4 text-gold" />
                     <span className="text-sm font-medium text-foreground">
-                        {totalVotes} Swiftie{totalVotes !== 1 ? 's' : ''} voted today
+                        {estimatedVotes} Swiftie{estimatedVotes !== 1 ? 's' : ''} voted today
                     </span> 
                 </div>
             </div>
             
             <div className="space-y-3">
-                {leaderboard.map((entry, index) => {
-                    const song = songMap.get(entry.songId);
-                    if (!song) return null;
+                {globalRanking.map((entry, index) => {
+                    const item = itemMap.get(entry.item_id);
+                    if (!item) return null;
 
-                    const userRank = userRanking.indexOf(entry.songId) + 1;
+                    const userRank = userRanking.indexOf(entry.item_id) + 1;
                     const isTop = index === 0;
                     const isTopThree = index < 3;
 
                     return (
                         <div
-                            key={entry.songId}
+                            key={entry.item_id}
                             className={`
                                 relative flex items-center gap-4 p-4 rounded-xl
                                 border transition-all duration-300 animate-slide-up
@@ -69,17 +78,17 @@ export function Leaderboard({ songs, leaderboard, userRanking }: LeaderboardProp
                             {/* Song Info */}
                             <div className="flex-1 min-w-0">
                                 <h3 className={`font-display text-lg font-semibold truncate ${isTop ? 'text-primary-foreground' : 'text-foreground'}`}>
-                                    {song.title}
+                                    {item.name}
                                 </h3>
                                 <p className={`text-sm truncate ${isTop ? 'text-primary-foreground/80' : 'text-muted-foreground'}`}>
-                                {song.album}
+                                {/* {song.album} */}
                                 </p>
                             </div>
 
                             {/* Stats */}
                             <div className="flex-shrink-0 text-right">
                                 <div className={`text-sm font-medium ${isTop ? 'text-primary-foreground' : 'text-foreground'}`}>
-                                    Avg: {entry.averageRank.toFixed(1)}
+                                    Score: {entry.score}
                                 </div>
                                 <div className={`text-xs ${isTop ? 'text-primary-foreground/70' : 'text-muted-foreground'}`}>
                                     You: #{userRank}

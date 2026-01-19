@@ -2,45 +2,107 @@ import { useState, useEffect } from 'react';
 import { Header } from '@/components/Header';
 import { RankingGame } from '@/components/RankingGame';
 import { Leaderboard } from '@/components/Leaderboard';
-import { getTodaySongs } from '@/lib/songs';
-import type { Song } from '@/lib/songs';
-import type { LeaderboardEntry } from '@/lib/leaderboard';
-import {
-    hasSubmittedToday,
-    saveSubmission,
-    calculateLeaderboard,
-    getUserRanking
-} from '@/lib/leaderboard';
+import { getDailySet, submitRanking, getGlobalRanking } from '@/lib/api';
+import type { DailySetItem, GlobalRankingItem } from '@/lib/types';
 import { Sparkles } from 'lucide-react';
 
+interface Item {
+  id: string;
+  name: string;
+  artist: string | null;
+}
+
 const Index = () => {
-    const [songs, setSongs] = useState<Song[]>([]);
+    const [items, setItems] = useState<Item[]>([]);
+    const [dailySetId, setDailySetId] = useState<string | null>(null);
     const [hasSubmitted, setHasSubmitted] = useState(false);
-    const [leaderboard, setLeaderboard] = useState<LeaderboardEntry[]>([]);
+    const [globalRanking, setGlobalRanking] = useState<GlobalRankingItem[]>([]);
     const [userRanking, setUserRanking] = useState<string[]>([]);
     const [showConfetti, setShowConfetti] = useState(false);
+    const [loading, setLoading] = useState(true);
+    const [error, setError] = useState<string | null>(null);
 
     useEffect(() => {
-        const todaysSongs = getTodaySongs();
-        setSongs(todaysSongs);
+        async function loadDailySet() {
+            try {
+                setLoading(true);
+                const { data, error } = await getDailySet('taylor-swift');
+                
+                if (error) {
+                    console.error('Error loading daily set:', error);
+                    setError('Failed to load today\'s songs');
+                    return;
+                }
 
-        const submitted = hasSubmittedToday();
-        setHasSubmitted(submitted);
+                if (data && data.length > 0) {
+                    const setId = data[0].daily_set_id;
+                    setDailySetId(setId);
+                    
+                    // Convert API data to Item format
+                    const itemsData = data.map((item: DailySetItem) => ({
+                        id: item.item_id,
+                        name: item.item_name,
+                        artist: item.item_artist,
+                    }));
+                    setItems(itemsData);
 
-        if (submitted) {
-            setLeaderboard(calculateLeaderboard(todaysSongs));
-            setUserRanking(getUserRanking() || []);
+                    // Check if user has already submitted by trying to load rankings
+                    const userSubmissionKey = `submitted_${setId}`;
+                    const storedRanking = localStorage.getItem(userSubmissionKey);
+                    
+                    if (storedRanking) {
+                        const ranking = JSON.parse(storedRanking);
+                        setUserRanking(ranking);
+                        setHasSubmitted(true);
+                        
+                        // Load global rankings
+                        const { data: rankingData, error: rankingError } = await getGlobalRanking(setId);
+                        if (!rankingError && rankingData) {
+                            setGlobalRanking(rankingData);
+                        }
+                    }
+                }
+            } catch (err) {
+                console.error('Error:', err);
+                setError('An unexpected error occurred');
+            } finally {
+                setLoading(false);
+            }
         }
+
+        loadDailySet();
     }, []);
 
-    const handleSubmit = (ranking: string[]) => {
-        saveSubmission(ranking);
-        setUserRanking(ranking);
-        setHasSubmitted(true);
-        setShowConfetti(true);
-        setLeaderboard(calculateLeaderboard(songs));
+    const handleSubmit = async (ranking: string[]) => {
+        if (!dailySetId) return;
 
-        setTimeout(() => setShowConfetti(false), 3000);
+        try {
+            const { error } = await submitRanking(dailySetId, ranking);
+            
+            if (error) {
+                console.error('Error submitting ranking:', error);
+                alert('Failed to submit ranking. Please try again.');
+                return;
+            }
+
+            // Save to localStorage for client-side tracking
+            localStorage.setItem(`submitted_${dailySetId}`, JSON.stringify(ranking));
+            
+            setUserRanking(ranking);
+            setHasSubmitted(true);
+            setShowConfetti(true);
+
+            // Load global rankings
+            const { data: rankingData, error: rankingError } = await getGlobalRanking(dailySetId);
+            if (!rankingError && rankingData) {
+                setGlobalRanking(rankingData);
+            }
+
+            setTimeout(() => setShowConfetti(false), 3000);
+        } catch (err) {
+            console.error('Unexpected error:', err);
+            alert('An unexpected error occurred');
+        }
     };
 
     return (
@@ -74,12 +136,20 @@ const Index = () => {
             <div className="container max-w-lg mx-auto px-4 pb-12">
 
                 <Header />
-                {!hasSubmitted ? (
-                    songs.length > 0 ? (
-                        <RankingGame songs={songs} onSubmit={handleSubmit} />
+                {loading ? (
+                    <div className="text-center py-12">
+                        <p className="text-muted-foreground">Loading today\'s songs...</p>
+                    </div>
+                ) : error ? (
+                    <div className="text-center py-12">
+                        <p className="text-red-500">{error}</p>
+                    </div>
+                ) : !hasSubmitted ? (
+                    items.length > 0 ? (
+                        <RankingGame items={items} onSubmit={handleSubmit} />
                     ) : (
                         <div className="text-center py-12">
-                            <p className="text-muted-foreground">Loading today's songs...</p>
+                            <p className="text-muted-foreground">No songs available today.</p>
                         </div>
                     )
                 ) : (
@@ -98,8 +168,8 @@ const Index = () => {
                         </h2>
 
                         <Leaderboard
-                            songs={songs}
-                            leaderboard={leaderboard}
+                            items={items}
+                            globalRanking={globalRanking}
                             userRanking={userRanking}
                         />
                     </div>

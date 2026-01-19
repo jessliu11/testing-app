@@ -1,13 +1,18 @@
-import type { Song } from '@/lib/songs';
 import { GripVertical, Music } from "lucide-react";
 
+interface Item {
+    id: string;
+    name: string;
+    artist: string | null;
+}
+
 interface SongCardProps {
-    song: Song;
+    item: Item;
     rank: number;
     isDragging?: boolean;
 }
 
-export function SongCard({ song, rank, isDragging }: SongCardProps) {
+export function SongCard({ item, rank, isDragging }: SongCardProps) {
     return (
         <div
             className={`
@@ -25,7 +30,7 @@ export function SongCard({ song, rank, isDragging }: SongCardProps) {
             {/* Album Art Placeholder */}
             <div
                 className="flex-shrink-0 w-12 h-12 rounded-lg flex items-center justify-center"
-                style={{ backgroundColor: song.albumColor }}
+                //style={{ backgroundColor: song.albumColor }}
             >
                 <Music className="w-6 h-6 text-white/80" />
             </div>
@@ -33,10 +38,10 @@ export function SongCard({ song, rank, isDragging }: SongCardProps) {
             {/* Song Info */}
             <div className="flex-1 min-w-0">
                 <h3 className="font-display text-lg font-semibold text-foreground truncate">
-                    {song.title}
+                    {item.name}
                 </h3>
                 <p className="text-sm text-muted-foreground truncate">
-                    {song.album} • {song.year}
+                    {item.artist || 'Unknown Artist'}
                 </p>
             </div>
 
