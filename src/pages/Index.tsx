@@ -10,6 +10,9 @@ interface Item {
   id: string;
   name: string;
   artist: string | null;
+  groupName?: string | null;
+  groupColorHex?: string | null;
+  publishedDate?: string | null;
 }
 
 const Index = () => {
@@ -43,6 +46,9 @@ const Index = () => {
                         id: item.item_id,
                         name: item.item_name,
                         artist: item.item_artist,
+                        groupName: item.group_name,
+                        groupColorHex: item.group_color_hex,
+                        publishedDate: item.published_date,
                     }));
                     setItems(itemsData);
 

@@ -8,6 +8,9 @@ export interface DailySetItem {
   item_name: string;
   item_artist: string | null;
   display_order: number;
+  group_name: string | null;
+  group_color_hex: string | null;
+  published_date: string | null;
 }
 
 export interface GlobalRankingItem {

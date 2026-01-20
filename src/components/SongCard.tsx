@@ -4,6 +4,9 @@ interface Item {
     id: string;
     name: string;
     artist: string | null;
+    groupName?: string | null;
+    groupColorHex?: string | null;
+    publishedDate?: string | null;
 }
 
 interface SongCardProps {
@@ -30,7 +33,7 @@ export function SongCard({ item, rank, isDragging }: SongCardProps) {
             {/* Album Art Placeholder */}
             <div
                 className="flex-shrink-0 w-12 h-12 rounded-lg flex items-center justify-center"
-                //style={{ backgroundColor: song.albumColor }}
+                style={{ backgroundColor: item.groupColorHex || '#6b7280' }}
             >
                 <Music className="w-6 h-6 text-white/80" />
             </div>
@@ -41,7 +44,9 @@ export function SongCard({ item, rank, isDragging }: SongCardProps) {
                     {item.name}
                 </h3>
                 <p className="text-sm text-muted-foreground truncate">
-                    {item.artist || 'Unknown Artist'}
+                    {item.groupName && item.publishedDate 
+                        ? `${item.groupName} (${new Date(item.publishedDate).getFullYear()})`
+                        : item.artist || 'Unknown Artist'}
                 </p>
             </div>
 

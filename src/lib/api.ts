@@ -17,7 +17,7 @@ export async function submitRanking(
 ) {
     return supabase.rpc("submit_ranking", {
         p_daily_set_id: dailySetId,
-        p_ranked_items_ids: rankedItemsIds
+        p_ranked_item_ids: rankedItemsIds
     })
 }
 
