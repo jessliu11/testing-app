@@ -48,7 +48,7 @@ export function Leaderboard({ items, globalRanking, userRanking }: LeaderboardPr
                                 relative flex items-center gap-4 p-4 rounded-xl
                                 border transition-all duration-300 animate-slide-up
                                 ${isTop
-                                    ? 'big-gradient-gold border-gold/30 shadow-glow'
+                                    ? 'bg-gradient-gold border-gold/30 shadow-glow'
                                     : 'bg-card border-border/50 shadow-soft hover:shadow-card'
                                 }
                             `}
@@ -58,7 +58,7 @@ export function Leaderboard({ items, globalRanking, userRanking }: LeaderboardPr
                             <div className={`
                                 flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center
                                 ${isTop
-                                    ? 'big-primary-foreground'
+                                    ? 'bg-primary-foreground'
                                     : isTopThree
                                         ? 'bg-accent'
                                         : 'bg-muted'
@@ -77,7 +77,7 @@ export function Leaderboard({ items, globalRanking, userRanking }: LeaderboardPr
 
                             {/* Song Info */}
                             <div className="flex-1 min-w-0">
-                                <h3 className={`font-display text-lg font-semibold truncate ${isTop ? 'text-primary-foreground' : 'text-foreground'}`}>
+                                <h3 className={`font-display text-lg font-medium truncate ${isTop ? 'text-primary-foreground' : 'text-foreground'}`}>
                                     {item.name}
                                 </h3>
                                 <p className={`text-sm truncate ${isTop ? 'text-primary-foreground/80' : 'text-muted-foreground'}`}>

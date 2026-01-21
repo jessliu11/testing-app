@@ -40,7 +40,7 @@ export function SongCard({ item, rank, isDragging }: SongCardProps) {
 
             {/* Song Info */}
             <div className="flex-1 min-w-0">
-                <h3 className="font-display text-lg font-semibold text-foreground truncate">
+                <h3 className="font-display text-lg font-medium text-foreground truncate">
                     {item.name}
                 </h3>
                 <p className="text-sm text-muted-foreground truncate">

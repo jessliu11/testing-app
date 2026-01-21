@@ -16,7 +16,7 @@ export function Header() {
                 <Star className="w-5 h-5 text-gold fill-gold" />
             </div>
 
-            <h1 className="font-display text-4xl md:text-5xl font-bold text-foreground tracking-tight">
+            <h1 className="font-display text-4xl md:text-5xl font-semibold text-foreground tracking-tight">
                 Swift Ranker
             </h1>
 
