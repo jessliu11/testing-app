@@ -19,8 +19,13 @@ export function RankingGame({ items, onSubmit }: RankingGameProps) {
     const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
     const touchStartY = useRef<number | null>(null);
     const currentTouchIndex = useRef<number | null>(null);
+    const isDraggingEnabled = useRef<boolean>(false);
 
-    const handleDragStart = (index: number) => {
+    const handleDragStart = (e: React.DragEvent, index: number) => {
+        if (!isDraggingEnabled.current) {
+            e.preventDefault();
+            return;
+        }
         setDraggedIndex(index);
     };
 
@@ -37,10 +42,16 @@ export function RankingGame({ items, onSubmit }: RankingGameProps) {
     
     const handleDragEnd = () => {
         setDraggedIndex(null);
+        isDraggingEnabled.current = false;
+    };
+
+    const handleDragHandleMouseDown = () => {
+        isDraggingEnabled.current = true;
     };
 
     // Touch handlers for mobile
-    const handleTouchStart = (e: React.TouchEvent, index: number) => {
+    const handleDragHandleTouchStart = (e: React.TouchEvent, index: number) => {
+        e.stopPropagation();
         touchStartY.current = e.touches[0].clientY;
         currentTouchIndex.current = index;
         setDraggedIndex(index);
@@ -97,20 +108,21 @@ export function RankingGame({ items, onSubmit }: RankingGameProps) {
                 {rankedItems.map((item, index) => ( 
                     <div
                         key={item.id}
-                        draggable
-                        onDragStart={() => handleDragStart(index)}
+                        draggable={isDraggingEnabled.current}
+                        onDragStart={(e) => handleDragStart(e, index)}
                         onDragOver={(e) => handleDragOver(e, index)}
                         onDragEnd={handleDragEnd}
-                        onTouchStart={(e) => handleTouchStart(e, index)}
                         onTouchMove={handleTouchMove}
                         onTouchEnd={handleTouchEnd}
-                        className="animate-fade-in touch-none"
+                        className="animate-fade-in"
                         style={{ animationDelay: `${index * 100}ms` }}
                     >
                         <SongCard 
                             item={item}
                             rank={index + 1}
                             isDragging={draggedIndex === index}
+                            onDragHandleMouseDown={handleDragHandleMouseDown}
+                            onDragHandleTouchStart={(e) => handleDragHandleTouchStart(e, index)}
                         />
                     </div>
                 ))}

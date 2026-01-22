@@ -13,16 +13,18 @@ interface SongCardProps {
     item: Item;
     rank: number;
     isDragging?: boolean;
+    onDragHandleMouseDown?: (e: React.MouseEvent) => void;
+    onDragHandleTouchStart?: (e: React.TouchEvent) => void;
 }
 
-export function SongCard({ item, rank, isDragging }: SongCardProps) {
+export function SongCard({ item, rank, isDragging, onDragHandleMouseDown, onDragHandleTouchStart }: SongCardProps) {
     return (
         <div
             className={`
                 group relative flex items-center gap-4 p-4 rounded-xl
                 bg-card border border-border/50
                 shadow-soft hover:shadow-card transition-all duration-300
-                ${isDragging ? 'scale-105 shadow-glow rotate-10' : ''}
+                ${isDragging ? 'scale-105 shadow-glow' : ''}
             `}
         >
             {/* Rank Badge */}
@@ -51,7 +53,11 @@ export function SongCard({ item, rank, isDragging }: SongCardProps) {
             </div>
 
             {/* Drag Handle */}
-            <div className="flex-shrink-0 opacity-40 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing">
+            <div 
+                className="flex-shrink-0 opacity-40 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing p-2 -mr-2"
+                onMouseDown={onDragHandleMouseDown}
+                onTouchStart={onDragHandleTouchStart}
+            >
                 <GripVertical className="w-5 h-5 text-foreground" />
             </div>
         </div>
