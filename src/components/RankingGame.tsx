@@ -1,4 +1,4 @@
-import { useState, useCallback } from 'react';
+import { useState, useCallback, useRef } from 'react';
 import { SongCard } from './SongCard';
 import { Button } from "@/components/ui/button";
 import { Sparkles, ArrowRight } from 'lucide-react';
@@ -16,7 +16,9 @@ interface RankingGameProps {
 
 export function RankingGame({ items, onSubmit }: RankingGameProps) {
     const [rankedItems, setRankedItems] = useState<Item[]>(items); 
-    const [draggedIndex, setDraggedIndex] = useState<number | null>(null); 
+    const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
+    const touchStartY = useRef<number | null>(null);
+    const currentTouchIndex = useRef<number | null>(null);
 
     const handleDragStart = (index: number) => {
         setDraggedIndex(index);
@@ -35,7 +37,49 @@ export function RankingGame({ items, onSubmit }: RankingGameProps) {
     
     const handleDragEnd = () => {
         setDraggedIndex(null);
-    }
+    };
+
+    // Touch handlers for mobile
+    const handleTouchStart = (e: React.TouchEvent, index: number) => {
+        touchStartY.current = e.touches[0].clientY;
+        currentTouchIndex.current = index;
+        setDraggedIndex(index);
+    };
+
+    const handleTouchMove = (e: React.TouchEvent) => {
+        if (touchStartY.current === null || currentTouchIndex.current === null) return;
+        
+        e.preventDefault();
+        const touchY = e.touches[0].clientY;
+        const deltaY = touchY - touchStartY.current;
+        
+        // Determine if we should swap based on movement
+        if (Math.abs(deltaY) > 50) { // 50px threshold
+            const currentIndex = currentTouchIndex.current;
+            let targetIndex = currentIndex;
+            
+            if (deltaY > 0 && currentIndex < rankedItems.length - 1) {
+                targetIndex = currentIndex + 1;
+            } else if (deltaY < 0 && currentIndex > 0) {
+                targetIndex = currentIndex - 1;
+            }
+            
+            if (targetIndex !== currentIndex) {
+                const newItems = [...rankedItems];
+                const [draggedItem] = newItems.splice(currentIndex, 1);
+                newItems.splice(targetIndex, 0, draggedItem);
+                setRankedItems(newItems);
+                currentTouchIndex.current = targetIndex;
+                touchStartY.current = touchY;
+            }
+        }
+    };
+
+    const handleTouchEnd = () => {
+        touchStartY.current = null;
+        currentTouchIndex.current = null;
+        setDraggedIndex(null);
+    };
 
     const handleSubmit = useCallback(() => {
         onSubmit(rankedItems.map(s => s.id));
@@ -57,7 +101,10 @@ export function RankingGame({ items, onSubmit }: RankingGameProps) {
                         onDragStart={() => handleDragStart(index)}
                         onDragOver={(e) => handleDragOver(e, index)}
                         onDragEnd={handleDragEnd}
-                        className="animate-fade-in"
+                        onTouchStart={(e) => handleTouchStart(e, index)}
+                        onTouchMove={handleTouchMove}
+                        onTouchEnd={handleTouchEnd}
+                        className="animate-fade-in touch-none"
                         style={{ animationDelay: `${index * 100}ms` }}
                     >
                         <SongCard 
