@@ -18,6 +18,13 @@ interface SongCardProps {
 }
 
 export function SongCard({ item, rank, isDragging, onDragHandleMouseDown, onDragHandleTouchStart }: SongCardProps) {
+    const handleTouchStart = (e: React.TouchEvent) => {
+        e.preventDefault(); // Prevent scrolling when touching the handle
+        if (onDragHandleTouchStart) {
+            onDragHandleTouchStart(e);
+        }
+    };
+
     return (
         <div
             className={`
@@ -54,9 +61,9 @@ export function SongCard({ item, rank, isDragging, onDragHandleMouseDown, onDrag
 
             {/* Drag Handle */}
             <div 
-                className="flex-shrink-0 opacity-40 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing p-2 -mr-2"
+                className="flex-shrink-0 opacity-40 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing p-2 -mr-2 touch-none"
                 onMouseDown={onDragHandleMouseDown}
-                onTouchStart={onDragHandleTouchStart}
+                onTouchStart={handleTouchStart}
             >
                 <GripVertical className="w-5 h-5 text-foreground" />
             </div>

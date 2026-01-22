@@ -51,7 +51,7 @@ export function RankingGame({ items, onSubmit }: RankingGameProps) {
 
     // Touch handlers for mobile
     const handleDragHandleTouchStart = (e: React.TouchEvent, index: number) => {
-        e.stopPropagation();
+        // Already prevented in SongCard, but ensure no propagation
         touchStartY.current = e.touches[0].clientY;
         currentTouchIndex.current = index;
         setDraggedIndex(index);
@@ -60,6 +60,7 @@ export function RankingGame({ items, onSubmit }: RankingGameProps) {
     const handleTouchMove = (e: React.TouchEvent) => {
         if (touchStartY.current === null || currentTouchIndex.current === null) return;
         
+        // Prevent scrolling during drag
         e.preventDefault();
         const touchY = e.touches[0].clientY;
         const deltaY = touchY - touchStartY.current;
@@ -104,7 +105,11 @@ export function RankingGame({ items, onSubmit }: RankingGameProps) {
                 </p>
             </div>
 
-            <div className="space-y-3">
+            <div 
+                className="space-y-3"
+                onTouchMove={handleTouchMove}
+                onTouchEnd={handleTouchEnd}
+            >
                 {rankedItems.map((item, index) => ( 
                     <div
                         key={item.id}
@@ -112,8 +117,6 @@ export function RankingGame({ items, onSubmit }: RankingGameProps) {
                         onDragStart={(e) => handleDragStart(e, index)}
                         onDragOver={(e) => handleDragOver(e, index)}
                         onDragEnd={handleDragEnd}
-                        onTouchMove={handleTouchMove}
-                        onTouchEnd={handleTouchEnd}
                         className="animate-fade-in"
                         style={{ animationDelay: `${index * 100}ms` }}
                     >
