@@ -1,5 +1,7 @@
 begin;
 
+drop function if exists public.get_daily_set(text, text);
+
 create or replace function public.get_daily_set(
   category_slug text,
   tz text
