@@ -19,13 +19,9 @@ export function RankingGame({ items, onSubmit }: RankingGameProps) {
     const [draggedIndex, setDraggedIndex] = useState<number | null>(null);
     const touchStartY = useRef<number | null>(null);
     const currentTouchIndex = useRef<number | null>(null);
-    const isDraggingEnabled = useRef<boolean>(false);
 
     const handleDragStart = (e: React.DragEvent, index: number) => {
-        if (!isDraggingEnabled.current) {
-            e.preventDefault();
-            return;
-        }
+        // Allow drag from anywhere on desktop
         e.dataTransfer.effectAllowed = 'move';
         setDraggedIndex(index);
     };
@@ -43,11 +39,6 @@ export function RankingGame({ items, onSubmit }: RankingGameProps) {
     
     const handleDragEnd = () => {
         setDraggedIndex(null);
-        isDraggingEnabled.current = false;
-    };
-
-    const handleDragHandleMouseDown = () => {
-        isDraggingEnabled.current = true;
     };
 
     // Touch handlers for mobile
@@ -114,7 +105,7 @@ export function RankingGame({ items, onSubmit }: RankingGameProps) {
                 {rankedItems.map((item, index) => ( 
                     <div
                         key={item.id}
-                        draggable={isDraggingEnabled.current}
+                        draggable={true}
                         onDragStart={(e) => handleDragStart(e, index)}
                         onDragOver={(e) => handleDragOver(e, index)}
                         onDragEnd={handleDragEnd}
@@ -125,7 +116,6 @@ export function RankingGame({ items, onSubmit }: RankingGameProps) {
                             item={item}
                             rank={index + 1}
                             isDragging={draggedIndex === index}
-                            onDragHandleMouseDown={handleDragHandleMouseDown}
                             onDragHandleTouchStart={(e) => handleDragHandleTouchStart(e, index)}
                         />
                     </div>
