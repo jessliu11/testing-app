@@ -26,6 +26,7 @@ export function RankingGame({ items, onSubmit }: RankingGameProps) {
             e.preventDefault();
             return;
         }
+        e.dataTransfer.effectAllowed = 'move';
         setDraggedIndex(index);
     };
 
@@ -106,7 +107,7 @@ export function RankingGame({ items, onSubmit }: RankingGameProps) {
             </div>
 
             <div 
-                className="space-y-3"
+                className="space-y-3 select-none"
                 onTouchMove={handleTouchMove}
                 onTouchEnd={handleTouchEnd}
             >
@@ -117,7 +118,7 @@ export function RankingGame({ items, onSubmit }: RankingGameProps) {
                         onDragStart={(e) => handleDragStart(e, index)}
                         onDragOver={(e) => handleDragOver(e, index)}
                         onDragEnd={handleDragEnd}
-                        className="animate-fade-in"
+                        className="animate-fade-in select-none"
                         style={{ animationDelay: `${index * 100}ms` }}
                     >
                         <SongCard 

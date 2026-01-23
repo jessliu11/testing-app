@@ -31,6 +31,7 @@ export function SongCard({ item, rank, isDragging, onDragHandleMouseDown, onDrag
                 group relative flex items-center gap-4 p-4 rounded-xl
                 bg-card border border-border/50
                 shadow-soft hover:shadow-card transition-all duration-300
+                select-none
                 ${isDragging ? 'scale-105 shadow-glow' : ''}
             `}
         >
