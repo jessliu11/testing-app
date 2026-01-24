@@ -2,6 +2,7 @@ import { useState, useCallback, useRef } from 'react';
 import { SongCard } from './SongCard';
 import { Button } from "@/components/ui/button";
 import { Sparkles, ArrowRight } from 'lucide-react';
+import { haptics } from '@/lib/haptics';
 
 interface Item {
     id: string;
@@ -46,6 +47,8 @@ export function RankingGame({ items, onSubmit }: RankingGameProps) {
         // Already prevented in SongCard, but ensure no propagation
         touchStartY.current = e.touches[0].clientY;
         currentTouchIndex.current = index;
+        // Haptic feedback when user picks up a card
+        haptics.selection();
         setDraggedIndex(index);
     };
 
@@ -58,7 +61,7 @@ export function RankingGame({ items, onSubmit }: RankingGameProps) {
         const deltaY = touchY - touchStartY.current;
         
         // Determine if we should swap based on movement
-        if (Math.abs(deltaY) > 50) { // 50px threshold
+        if (Math.abs(deltaY) > 80) { // 50px threshold
             const currentIndex = currentTouchIndex.current;
             let targetIndex = currentIndex;
             
@@ -73,9 +76,15 @@ export function RankingGame({ items, onSubmit }: RankingGameProps) {
                 const [draggedItem] = newItems.splice(currentIndex, 1);
                 newItems.splice(targetIndex, 0, draggedItem);
                 setRankedItems(newItems);
+                // Haptic feedback when cards swap positions
+                haptics.medium();
                 currentTouchIndex.current = targetIndex;
                 touchStartY.current = touchY;
             }
+        // Haptic feedback when user releases the card
+        if (draggedIndex !== null) {
+            haptics.light();
+        }
         }
     };
 
