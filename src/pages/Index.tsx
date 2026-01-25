@@ -144,7 +144,7 @@ const Index = () => {
                 <Header />
                 {loading ? (
                     <div className="text-center py-12">
-                        <p className="text-muted-foreground">Loading today\'s songs...</p>
+                        <p className="text-muted-foreground">Loading today's songs...</p>
                     </div>
                 ) : error ? (
                     <div className="text-center py-12">
