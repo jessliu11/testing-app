@@ -18,6 +18,7 @@ export interface GlobalRankingItem {
   item_name: string;
   item_artist: string | null;
   score: number;
+  first_place_votes: number;
 }
 
 export interface Item {

@@ -1,5 +1,7 @@
-import { Users, Crown, Medal } from "lucide-react";
+import { Users, Crown, Medal, Share2, Check } from "lucide-react";
 import type { GlobalRankingItem } from "@/lib/types";
+import { Button } from "@/components/ui/button";
+import { useState } from "react";
 
 interface Item {
     id: string;
@@ -14,22 +16,80 @@ interface LeaderboardProps {
 }
 
 export function Leaderboard({ items, globalRanking, userRanking }: LeaderboardProps) {
+
+    const [copied, setCopied] = useState(false);
     const itemMap = new Map(items.map(i => [i.id, i]));
+
     
     // Calculate total votes from scores (since score = sum of (7 - rank))
     // Each vote contributes between 1 and 6 points, average ~3.5
     const totalScore = globalRanking.reduce((sum, item) => sum + item.score, 0);
     const estimatedVotes = totalScore > 0 ? Math.round(totalScore / 21) : 0; // 21 = sum(1..6)
 
+    const copyToClipboard = async (text: string) => {
+        try {
+            await navigator.clipboard.writeText(text);
+            setCopied(true);
+            setTimeout(() => setCopied(false), 2000);
+        } catch (err) {
+            console.error('Failed to copy to clipboard:', err);
+        }
+    };
+
+    const handleShare = async () => {
+        const rankingText = userRanking
+            .map((itemId, index) => {
+                const item = itemMap.get(itemId);
+                return `${index + 1}. ${item ? item.name : 'Unknown'}`;
+            })
+            .join('\n');
+
+        const shareText = `🎵 My Taylor Swift ranking for today:\n\n${rankingText}\n\nPlay at: ${window.location.href}`;
+
+        if (navigator.share) {
+            try {
+                await navigator.share({
+                    title: 'My Taylor Swift Ranking',
+                    text: shareText,
+                });
+            } catch (err) {
+                // user cancelled or share failed, fall back to clipboard
+                copyToClipboard(shareText);
+            }
+        } else {
+            copyToClipboard(shareText);
+        }
+    };
+    
+
     return (
         <div className="space-y-6">
-            <div className="text-center space-y-2">
+            <div className="flex flex-col items-center gap-3">
                 <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent">
                     <Users className="w-4 h-4 text-gold" />
                     <span className="text-sm font-medium text-foreground">
                         {estimatedVotes} Swiftie{estimatedVotes !== 1 ? 's' : ''} voted today
                     </span> 
                 </div>
+                
+                <Button 
+                    onClick={handleShare}
+                    variant="outline"
+                    size="lg"
+                    className="gap-3"
+                >
+                    {copied ? (
+                        <>
+                            <Check className="w-4 h-4" />
+                            Copied!
+                        </>
+                    ) : (
+                        <>
+                            <Share2 className="w-4 h-4" />
+                            Share My Ranking
+                        </>
+                    )}
+                </Button>
             </div>
             
             <div className="space-y-3">
@@ -88,7 +148,14 @@ export function Leaderboard({ items, globalRanking, userRanking }: LeaderboardPr
                             {/* Stats */}
                             <div className="flex-shrink-0 text-right">
                                 <div className={`text-sm font-medium ${isTop ? 'text-primary-foreground' : 'text-foreground'}`}>
-                                    Score: {entry.score}
+                                    {entry.first_place_votes > 0 ? (
+                                        <span className="flex items-center gap-1 justify-end">
+                                            <Crown className="w-3.5 h-3.5" />
+                                            {entry.first_place_votes}
+                                        </span>
+                                    ) : (
+                                        <span className="text-muted-foreground">-</span>
+                                    )}
                                 </div>
                                 <div className={`text-xs ${isTop ? 'text-primary-foreground/70' : 'text-muted-foreground'}`}>
                                     You: #{userRank}
@@ -105,7 +172,5 @@ export function Leaderboard({ items, globalRanking, userRanking }: LeaderboardPr
                 </p>
             </div>
         </div>
-
-        
     );
 }
