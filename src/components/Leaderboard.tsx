@@ -23,7 +23,7 @@ export function Leaderboard({ items, globalRanking, userRanking }: LeaderboardPr
     
     // Calculate total votes from scores (since score = sum of (7 - rank))
     // Each vote contributes between 1 and 6 points, average ~3.5
-    const totalScore = globalRanking.reduce((sum, item) => sum + item.score, 0);
+    const totalScore = globalRanking.reduce((sum, item) => sum + Number(item.score), 0);
     const estimatedVotes = totalScore > 0 ? Math.round(totalScore / 21) : 0; // 21 = sum(1..6)
 
     const copyToClipboard = async (text: string) => {
@@ -148,7 +148,7 @@ export function Leaderboard({ items, globalRanking, userRanking }: LeaderboardPr
                             {/* Stats */}
                             <div className="flex-shrink-0 text-right">
                                 <div className={`text-sm font-medium ${isTop ? 'text-primary-foreground' : 'text-foreground'}`}>
-                                    {entry.first_place_votes > 0 ? (
+                                    {entry.first_place_votes != null && Number(entry.first_place_votes) > 0 ? (
                                         <span className="flex items-center gap-1 justify-end">
                                             <Crown className="w-3.5 h-3.5" />
                                             {entry.first_place_votes}
