@@ -7,7 +7,9 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "db:push:dev": "supabase link --project-ref iauntkomrwmfuhcatjzc && supabase db push",
+    "db:push:prod": "supabase link --project-ref kpbizmazonrsuvnzxdcq && supabase db push"
   },
   "dependencies": {
     "@hookform/resolvers": "^5.2.2",

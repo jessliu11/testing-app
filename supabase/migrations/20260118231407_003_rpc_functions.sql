@@ -195,7 +195,8 @@ returns table (
   item_id uuid,
   item_name text,
   item_artist text,
-  score bigint
+  score bigint,
+  first_place_votes bigint
 )
 language sql
 security definer
@@ -205,7 +206,8 @@ as $$
     i.id as item_id,
     i.name as item_name,
     i.artist as item_artist,
-    coalesce(sum(7 - r.rank), 0)::bigint as score
+    coalesce(sum(7 - r.rank), 0)::bigint as score,
+    coalesce(sum(case when r.rank = 1 then 1 else 0 end), 0)::bigint as first_place_votes
   from public.daily_set_items dsi
   join public.items i on i.id = dsi.item_id
   left join public.submissions s on s.daily_set_id = dsi.daily_set_id

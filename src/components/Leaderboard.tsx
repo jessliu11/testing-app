@@ -88,7 +88,14 @@ export function Leaderboard({ items, globalRanking, userRanking }: LeaderboardPr
                             {/* Stats */}
                             <div className="flex-shrink-0 text-right">
                                 <div className={`text-sm font-medium ${isTop ? 'text-primary-foreground' : 'text-foreground'}`}>
-                                    Score: {entry.score}
+                                    {entry.first_place_votes > 0 ? (
+                                        <span className="flex items-center gap-1 justify-end">
+                                            <Crown className="w-3.5 h-3.5" />
+                                            {entry.first_place_votes}
+                                        </span>
+                                    ) : (
+                                        <span className="text-muted-foreground">-</span>
+                                    )}
                                 </div>
                                 <div className={`text-xs ${isTop ? 'text-primary-foreground/70' : 'text-muted-foreground'}`}>
                                     You: #{userRank}
