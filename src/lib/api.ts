@@ -22,7 +22,14 @@ export async function submitRanking(
 }
 
 export async function getGlobalRanking(dailySetId: string) {
-    return supabase.rpc("get_global_ranking", {
+    const result = await supabase.rpc("get_global_ranking", {
         p_daily_set_id: dailySetId
     })
+    
+    // Debug logging for production
+    if (result.data && result.data.length > 0) {
+        console.log('getGlobalRanking first item:', JSON.stringify(result.data[0]));
+    }
+    
+    return result;
 }

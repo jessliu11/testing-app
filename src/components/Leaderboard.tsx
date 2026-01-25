@@ -148,7 +148,7 @@ export function Leaderboard({ items, globalRanking, userRanking }: LeaderboardPr
                             {/* Stats */}
                             <div className="flex-shrink-0 text-right">
                                 <div className={`text-sm font-medium ${isTop ? 'text-primary-foreground' : 'text-foreground'}`}>
-                                    {Number(entry.first_place_votes) > 0 ? (
+                                    {entry.first_place_votes != null && Number(entry.first_place_votes) > 0 ? (
                                         <span className="flex items-center gap-1 justify-end">
                                             <Crown className="w-3.5 h-3.5" />
                                             {entry.first_place_votes}
