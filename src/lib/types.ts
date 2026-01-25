@@ -17,8 +17,8 @@ export interface GlobalRankingItem {
   item_id: string;
   item_name: string;
   item_artist: string | null;
-  score: number;
-  first_place_votes: number;
+  score: number | string; // bigint from PostgreSQL can be string or number
+  first_place_votes: number | string; // bigint from PostgreSQL can be string or number
 }
 
 export interface Item {

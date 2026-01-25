@@ -23,7 +23,7 @@ export function Leaderboard({ items, globalRanking, userRanking }: LeaderboardPr
     
     // Calculate total votes from scores (since score = sum of (7 - rank))
     // Each vote contributes between 1 and 6 points, average ~3.5
-    const totalScore = globalRanking.reduce((sum, item) => sum + item.score, 0);
+    const totalScore = globalRanking.reduce((sum, item) => sum + Number(item.score), 0);
     const estimatedVotes = totalScore > 0 ? Math.round(totalScore / 21) : 0; // 21 = sum(1..6)
 
     const copyToClipboard = async (text: string) => {
