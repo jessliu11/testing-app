@@ -49,7 +49,7 @@ export function WhatsNewModal() {
                 <div className="bg-gradient-gold px-6 py-5">
                     <DialogHeader>
                         <DialogTitle className="text-primary-foreground text-xl font-display font-semibold">
-                            What's New ✨
+                            What's New
                         </DialogTitle>
                         <p className="text-primary-foreground/80 text-sm mt-1">
                             A few new features have been added since your last visit.
