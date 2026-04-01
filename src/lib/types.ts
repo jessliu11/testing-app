@@ -26,3 +26,13 @@ export interface Item {
   name: string;
   artist: string | null;
 }
+
+export interface Comment {
+  id: string;
+  daily_set_id: string;
+  user_id: string;
+  display_name: string;
+  top_pick: string | null;
+  body: string;
+  created_at: string;
+}

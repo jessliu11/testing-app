@@ -90,48 +90,46 @@ export function RankingGame({ items, onSubmit }: RankingGameProps) {
     }, [rankedItems, onSubmit]);
     
     return (
-        <div className="space-y-6">
-            <div className="text-center space-y-2">
-                <p className="text-muted-foreground font-body">
+        <div className="space-y-4">
+            <div className="rounded-xl border border-border bg-muted/30 p-4">
+                <p className="mb-4 text-center text-sm text-muted-foreground font-body">
                     Drag to reorder from <span className="text-gold font-medium">favorite</span> to least favorite
                 </p>
-            </div>
 
-            <div 
-                className="space-y-3 select-none"
-                onTouchMove={handleTouchMove}
-                onTouchEnd={handleTouchEnd}
-            >
-                {rankedItems.map((item, index) => ( 
-                    <div
-                        key={item.id}
-                        draggable={true}
-                        onDragStart={(e) => handleDragStart(e, index)}
-                        onDragOver={(e) => handleDragOver(e, index)}
-                        onDragEnd={handleDragEnd}
-                        className="animate-fade-in select-none"
-                        style={{ animationDelay: `${index * 100}ms` }}
-                    >
-                        <SongCard 
-                            item={item}
-                            rank={index + 1}
-                            isDragging={draggedIndex === index}
-                            onDragHandleTouchStart={(e) => handleDragHandleTouchStart(e, index)}
-                        />
-                    </div>
-                ))}
-            </div>
-
-            <div className="pt-4">
-                <Button 
-                    onClick={handleSubmit}
-                    className="w-full h-14 text-lg font-display font-semibold bg-gradient-gold hover:opacity-90 transition-opacity shadow-glow"
+                <div
+                    className="space-y-3 select-none"
+                    onTouchMove={handleTouchMove}
+                    onTouchEnd={handleTouchEnd}
                 >
-                    <Sparkles className="w-5 h-5 mr-2" />
-                    Submit My Ranking
-                    <ArrowRight className="w-5 h-5 ml-2" />
-                </Button>
+                    {rankedItems.map((item, index) => (
+                        <div
+                            key={item.id}
+                            draggable={true}
+                            onDragStart={(e) => handleDragStart(e, index)}
+                            onDragOver={(e) => handleDragOver(e, index)}
+                            onDragEnd={handleDragEnd}
+                            className="animate-fade-in select-none"
+                            style={{ animationDelay: `${index * 100}ms` }}
+                        >
+                            <SongCard
+                                item={item}
+                                rank={index + 1}
+                                isDragging={draggedIndex === index}
+                                onDragHandleTouchStart={(e) => handleDragHandleTouchStart(e, index)}
+                            />
+                        </div>
+                    ))}
+                </div>
             </div>
+
+            <Button
+                onClick={handleSubmit}
+                className="w-full h-14 text-lg font-display font-semibold bg-gradient-gold hover:opacity-90 transition-opacity shadow-glow"
+            >
+                <Sparkles className="w-5 h-5 mr-2" />
+                Submit My Ranking
+                <ArrowRight className="w-5 h-5 ml-2" />
+            </Button>
         </div>
     );
 }

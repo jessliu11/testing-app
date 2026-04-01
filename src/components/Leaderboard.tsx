@@ -1,4 +1,4 @@
-import { Users, Crown, Medal, Share2, Check } from "lucide-react";
+import { Users, Crown, Medal, Share2, Check, TrendingUp, Music } from "lucide-react";
 import type { GlobalRankingItem } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
@@ -62,17 +62,21 @@ export function Leaderboard({ items, globalRanking, userRanking }: LeaderboardPr
     };
     
 
+    // Build user's ranked items in order
+    const userRankedItems = userRanking
+        .map(id => itemMap.get(id))
+        .filter(Boolean) as Item[];
+
     return (
         <div className="space-y-6">
+            {/* Participation count + share */}
             <div className="flex flex-col items-center gap-3">
-                <div className="inline-flex items-center gap-2 px-4 py-2 rounded-full bg-accent">
-                    <Users className="w-4 h-4 text-gold" />
-                    <span className="text-sm font-medium text-foreground">
-                        {estimatedVotes} Swiftie{estimatedVotes !== 1 ? 's' : ''} voted today
-                    </span> 
+                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                    <Users className="w-4 h-4" />
+                    <span>{estimatedVotes.toLocaleString()} Swiftie{estimatedVotes !== 1 ? 's' : ''} voted today</span>
                 </div>
-                
-                <Button 
+
+                <Button
                     onClick={handleShare}
                     variant="outline"
                     size="lg"
@@ -91,82 +95,62 @@ export function Leaderboard({ items, globalRanking, userRanking }: LeaderboardPr
                     )}
                 </Button>
             </div>
-            
-            <div className="space-y-3">
-                {globalRanking.map((entry, index) => {
-                    const item = itemMap.get(entry.item_id);
-                    if (!item) return null;
 
-                    const userRank = userRanking.indexOf(entry.item_id) + 1;
-                    const isTop = index === 0;
-                    const isTopThree = index < 3;
+            {/* Side-by-side comparison */}
+            <div className="grid gap-3 grid-cols-2">
+                {/* Your Ranking */}
+                <div className="rounded-xl border border-border p-2.5">
+                    <h3 className="mb-2.5 flex items-center gap-1.5 font-semibold text-xs">
+                        <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-muted">
+                            <Music className="w-3 h-3 text-foreground" />
+                        </span>
+                        <span className="truncate">Your Ranking</span>
+                    </h3>
+                    <div className="space-y-1.5">
+                        {userRankedItems.map((item, index) => (
+                            <div
+                                key={item.id}
+                                className="flex items-center gap-1.5 rounded-lg bg-muted/50 px-1.5 py-1.5 animate-slide-up"
+                                style={{ animationDelay: `${index * 50}ms` }}
+                            >
+                                <span className="flex h-5 w-5 shrink-0 items-center justify-center rounded-full bg-muted text-[10px] font-bold text-foreground">
+                                    {index + 1}
+                                </span>
+                                <span className="text-[11px] font-medium truncate leading-tight">{item.name}</span>
+                            </div>
+                        ))}
+                    </div>
+                </div>
 
-                    return (
-                        <div
-                            key={entry.item_id}
-                            className={`
-                                relative flex items-center gap-4 p-4 rounded-xl
-                                border transition-all duration-300 animate-slide-up
-                                ${isTop
-                                    ? 'bg-gradient-gold border-gold/30 shadow-glow'
-                                    : 'bg-card border-border/50 shadow-soft hover:shadow-card'
-                                }
-                            `}
-                            style={{ animationDelay: `${index * 100}ms` }}
-                        >
-                            {/* Rank Badge */}
-                            <div className={`
-                                flex-shrink-0 w-10 h-10 rounded-full flex items-center justify-center
-                                ${isTop
-                                    ? 'bg-primary-foreground'
-                                    : isTopThree
-                                        ? 'bg-accent'
-                                        : 'bg-muted'
-                                }
-                            `}>
-                                {isTop ? (
-                                    <Crown className="w-5 h-5 text-gold" />
-                                ) : isTopThree ? (
-                                    <Medal className="w-5 h-5 text-gold" />
-                                ) : (
-                                    <span className={`text-lg font-semibold ${isTop ? 'text-foreground' : 'text-muted-foreground'}`}>
-                                        {index + 1}
+                {/* Community Ranking */}
+                <div className="rounded-xl border border-primary/30 bg-primary/5 p-2.5">
+                    <h3 className="mb-2.5 flex items-center gap-1.5 font-semibold text-xs">
+                        <TrendingUp className="h-3.5 w-3.5 shrink-0 text-primary" />
+                        <span className="truncate">Community</span>
+                    </h3>
+                    <div className="space-y-1.5">
+                        {globalRanking.map((entry, index) => {
+                            const item = itemMap.get(entry.item_id);
+                            if (!item) return null;
+                            const isTop = index === 0;
+                            return (
+                                <div
+                                    key={entry.item_id}
+                                    className="flex items-center gap-1.5 rounded-lg bg-background px-1.5 py-1.5 animate-slide-up"
+                                    style={{ animationDelay: `${index * 50}ms` }}
+                                >
+                                    <span className={`flex h-5 w-5 shrink-0 items-center justify-center rounded-full text-[10px] font-bold ${isTop ? 'bg-gradient-gold text-primary-foreground' : 'bg-primary text-primary-foreground'}`}>
+                                        {isTop ? <Crown className="w-2.5 h-2.5" /> : index + 1}
                                     </span>
-                                )}
-                            </div>
-
-                            {/* Song Info */}
-                            <div className="flex-1 min-w-0">
-                                <h3 className={`font-display text-lg font-medium truncate ${isTop ? 'text-primary-foreground' : 'text-foreground'}`}>
-                                    {item.name}
-                                </h3>
-                                <p className={`text-sm truncate ${isTop ? 'text-primary-foreground/80' : 'text-muted-foreground'}`}>
-                                {/* {song.album} */}
-                                </p>
-                            </div>
-
-                            {/* Stats */}
-                            <div className="flex-shrink-0 text-right">
-                                <div className={`text-sm font-medium ${isTop ? 'text-primary-foreground' : 'text-foreground'}`}>
-                                    {entry.first_place_votes != null && Number(entry.first_place_votes) > 0 ? (
-                                        <span className="flex items-center gap-1 justify-end">
-                                            <Crown className="w-3.5 h-3.5" />
-                                            {entry.first_place_votes}
-                                        </span>
-                                    ) : (
-                                        <span className="text-muted-foreground">-</span>
-                                    )}
+                                    <span className="text-[11px] font-medium truncate leading-tight">{item.name}</span>
                                 </div>
-                                <div className={`text-xs ${isTop ? 'text-primary-foreground/70' : 'text-muted-foreground'}`}>
-                                    You: #{userRank}
-                                </div>
-                            </div>
-                        </div>
-                    );
-                })}
+                            );
+                        })}
+                    </div>
+                </div>
             </div>
 
-            <div className="pt-4 text-center">
+            <div className="pt-2 text-center">
                 <p className="text-sm text-muted-foreground">
                     Come back tomorrow for a new set of songs! ✨
                 </p>

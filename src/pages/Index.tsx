@@ -2,8 +2,11 @@ import { useState, useEffect } from 'react';
 import { Header } from '@/components/Header';
 import { RankingGame } from '@/components/RankingGame';
 import { Leaderboard } from '@/components/Leaderboard';
-import { getDailySet, submitRanking, getGlobalRanking } from '@/lib/api';
-import type { DailySetItem, GlobalRankingItem } from '@/lib/types';
+import { Comments } from '@/components/Comments';
+import { WhatsNewModal } from '@/components/WhatsNewModal';
+import { getDailySet, submitRanking, getGlobalRanking, getComments } from '@/lib/api';
+import { supabase } from '@/lib/supabase';
+import type { DailySetItem, GlobalRankingItem, Comment } from '@/lib/types';
 import { Sparkles } from 'lucide-react';
 
 interface Item {
@@ -21,6 +24,8 @@ const Index = () => {
     const [hasSubmitted, setHasSubmitted] = useState(false);
     const [globalRanking, setGlobalRanking] = useState<GlobalRankingItem[]>([]);
     const [userRanking, setUserRanking] = useState<string[]>([]);
+    const [comments, setComments] = useState<Comment[]>([]);
+    const [currentUserId, setCurrentUserId] = useState<string | null>(null);
     const [showConfetti, setShowConfetti] = useState(false);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
@@ -29,6 +34,11 @@ const Index = () => {
         async function loadDailySet() {
             try {
                 setLoading(true);
+
+                // Capture the current user's ID for comment authorship
+                const { data: { user } } = await supabase.auth.getUser();
+                if (user) setCurrentUserId(user.id);
+
                 const { data, error } = await getDailySet('taylor-swift');
                 
                 if (error) {
@@ -60,12 +70,14 @@ const Index = () => {
                         const ranking = JSON.parse(storedRanking);
                         setUserRanking(ranking);
                         setHasSubmitted(true);
-                        
-                        // Load global rankings
-                        const { data: rankingData, error: rankingError } = await getGlobalRanking(setId);
-                        if (!rankingError && rankingData) {
-                            setGlobalRanking(rankingData);
-                        }
+
+                        // Load global rankings and comments in parallel
+                        const [{ data: rankingData, error: rankingError }, { data: commentsData }] = await Promise.all([
+                            getGlobalRanking(setId),
+                            getComments(setId),
+                        ]);
+                        if (!rankingError && rankingData) setGlobalRanking(rankingData);
+                        if (commentsData) setComments(commentsData as Comment[]);
                     }
                 }
             } catch (err) {
@@ -98,11 +110,13 @@ const Index = () => {
             setHasSubmitted(true);
             setShowConfetti(true);
 
-            // Load global rankings
-            const { data: rankingData, error: rankingError } = await getGlobalRanking(dailySetId);
-            if (!rankingError && rankingData) {
-                setGlobalRanking(rankingData);
-            }
+            // Load global rankings and comments in parallel
+            const [{ data: rankingData, error: rankingError }, { data: commentsData }] = await Promise.all([
+                getGlobalRanking(dailySetId),
+                getComments(dailySetId),
+            ]);
+            if (!rankingError && rankingData) setGlobalRanking(rankingData);
+            if (commentsData) setComments(commentsData as Comment[]);
 
             setTimeout(() => setShowConfetti(false), 3000);
         } catch (err) {
@@ -113,6 +127,8 @@ const Index = () => {
 
     return (
         <div className="min-h-screen bg-gradient-hero">
+            <WhatsNewModal />
+
             {/* Confetti Effect */}
             {showConfetti && (
                 <div className="fixed inset-0 pointer-events-none z-50 overflow-hidden">
@@ -160,13 +176,11 @@ const Index = () => {
                     )
                 ) : (
                     <div className="space-y-6">
-                        <div className="text-center animate-fade-in">
-                            <div className="inline-flex items-center gap-2 px-6 py-3 rounded-full bg-gradient-gold shadow-glow">
-                                <Sparkles className="w-5 h-5 text-primary-foreground" />
-                                <span className="font-display text-lg font-semibold text-primary-foreground">
-                                    Ranking Submitted!
-                                </span>
-                            </div>
+                        <div className="animate-fade-in flex items-center justify-center gap-2 rounded-xl bg-green-500/10 p-4 text-green-600 dark:text-green-400">
+                            <Sparkles className="w-5 h-5" />
+                            <span className="font-display text-lg font-semibold">
+                                Ranking Submitted!
+                            </span>
                         </div>
 
                         <h2 className="text-center font-display text-2xl font-bold text-foreground">
@@ -178,6 +192,16 @@ const Index = () => {
                             globalRanking={globalRanking}
                             userRanking={userRanking}
                         />
+
+                        {currentUserId && (
+                            <Comments
+                                dailySetId={dailySetId!}
+                                currentUserId={currentUserId}
+                                topPick={userRanking[0] ? (items.find(i => i.id === userRanking[0])?.name ?? null) : null}
+                                comments={comments}
+                                onCommentAdded={(c) => setComments((prev) => [c, ...prev])}
+                            />
+                        )}
                     </div>
                 )}
             </div>

@@ -27,16 +27,24 @@ export function SongCard({ item, rank, isDragging, onDragHandleTouchStart }: Son
     return (
         <div
             className={`
-                group relative flex items-center gap-4 p-4 rounded-xl
-                bg-card border border-border/50
-                shadow-soft hover:shadow-card transition-all duration-300
+                group relative flex items-center gap-3 p-3 rounded-xl
+                bg-card border-2 border-border
+                transition-all duration-200
                 select-none
-                ${isDragging ? 'scale-105 shadow-glow' : ''}
+                ${isDragging ? 'scale-[1.02] border-primary/50 shadow-glow' : 'hover:border-primary/50'}
             `}
         >
+            {/* Drag Handle - left side */}
+            <div
+                className="flex-shrink-0 p-1 rounded-lg text-muted-foreground opacity-70 sm:opacity-40 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing touch-none hover:bg-muted"
+                onTouchStart={handleTouchStart}
+            >
+                <GripVertical className="w-5 h-5" />
+            </div>
+
             {/* Rank Badge */}
             <div className="flex-shrink-0 w-8 h-8 rounded-full bg-gradient-gold flex items-center justify-center">
-                <span className="text-sm font-semibold text-primary-foreground"> {rank}</span>
+                <span className="text-sm font-semibold text-primary-foreground">{rank}</span>
             </div>
 
             {/* Album Art Placeholder */}
@@ -49,22 +57,14 @@ export function SongCard({ item, rank, isDragging, onDragHandleTouchStart }: Son
 
             {/* Song Info */}
             <div className="flex-1 min-w-0">
-                <h3 className="font-display text-lg font-medium text-foreground truncate">
+                <h3 className="font-display text-base font-medium text-foreground truncate">
                     {item.name}
                 </h3>
                 <p className="text-sm text-muted-foreground truncate">
-                    {item.groupName && item.publishedDate 
+                    {item.groupName && item.publishedDate
                         ? `${item.groupName} (${new Date(item.publishedDate).getFullYear()})`
                         : item.artist || 'Unknown Artist'}
                 </p>
-            </div>
-
-            {/* Drag Handle */}
-            <div 
-                className="flex-shrink-0 opacity-40 group-hover:opacity-100 transition-opacity cursor-grab active:cursor-grabbing p-2 -mr-2 touch-none"
-                onTouchStart={handleTouchStart}
-            >
-                <GripVertical className="w-5 h-5 text-foreground" />
             </div>
         </div>
     );
