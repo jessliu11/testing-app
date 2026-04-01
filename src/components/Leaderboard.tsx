@@ -1,4 +1,4 @@
-import { Users, Crown, Medal, Share2, Check, TrendingUp, Music } from "lucide-react";
+import { Users, Crown, Share2, Check, TrendingUp, Music } from "lucide-react";
 import type { GlobalRankingItem } from "@/lib/types";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
